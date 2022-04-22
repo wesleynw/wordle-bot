@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
 import os, asyncio, logging
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from re import search
+from re import match
 
 logging.basicConfig(level=logging.INFO)
 intents = discord.Intents().default()
@@ -26,15 +27,28 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.channel.name.lower() == "wordle" and search(r"Wordle \d{3,} [\dX]/6", message.content) is not None:
+    # wordle 306 on 4/21
+    # bench = 
+
+    if message.channel.name.lower() == "wordle" and bool(match(r"Wordle \d{3,} [\dX]/6", message.content)):
+        coll = db[str(message.guild.id)]
+        q = coll.find_one({"_id" : message.author.id})
+        if q is not None: 
+            d = q.get("updated")
+            day_ago = d + timedelta(days=1)
+            if day_ago > datetime.utcnow():
+                return
+
+
         raw_score = message.content.split(' ')[2][0]
         if raw_score == 'X':
             score = 0
         else:
             score = 7 - int(raw_score)
         
-        coll = db[str(message.guild.id)]
         coll.update_one({"_id" : message.author.id}, {"$inc" : {"score" : score}}, upsert=True)
+        coll.update_one({"_id" : message.author.id}, {"$set" : {"updated" : datetime.utcnow()}}, upsert=True)
+
         await message.add_reaction("✅")        
 
 

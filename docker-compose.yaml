@@ -7,7 +7,7 @@ services:
   database:
     image: mongo:latest
     volumes: 
-     - '/home/wesley/mongodb:/data/db'
+      - '/home/wesley/mongodb:/data/db'
     ports:
      - '27017:27017'
     restart: always
