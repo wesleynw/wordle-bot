@@ -29,9 +29,9 @@ async def on_message(message):
 
     if message.channel.name.lower() == "wordle" and bool(match(r"Wordle \d{3,} [\dX]/6", message.content)):
         coll = db[str(message.guild.id)]
-        raw = message.content.split(' ')[2][0]
-        day = raw[1]
-
+        raw_score = message.content.split(' ')[2][0]
+        day = message.content.split(' ')[1]
+        
         q = coll.find_one({"_id" : message.author.id})
         if q is not None: 
             if q.get("updated") == day:
