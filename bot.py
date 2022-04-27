@@ -9,7 +9,7 @@ from re import match
 logging.basicConfig(level=logging.INFO)
 intents = discord.Intents().default()
 
-db_client = MongoClient("mongodb://database:27017")
+db_client = MongoClient("mongodb://database")
 db = db_client["discord_wordle_bot_db"]
 bot = commands.Bot(command_prefix='^', intents=intents, help_command=None)
 
@@ -33,9 +33,8 @@ async def on_message(message):
         day = message.content.split(' ')[1]
         
         q = coll.find_one({"_id" : message.author.id})
-        if q is not None: 
-            if q.get("updated") == day:
-                return
+        if q is not None and q.get("updated") == day:
+            return
 
 
         if raw_score == 'X':
