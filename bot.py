@@ -44,6 +44,7 @@ async def on_message(message):
         
         coll.update_one({"_id" : message.author.id}, {"$inc" : {"score" : score}}, upsert=True)
         coll.update_one({"_id" : message.author.id}, {"$set" : {"updated" : day}}, upsert=True)
+        coll.update_one({"_id" : message.author.id}, {"$inc" : {"played" : 1}}, upsert=True)
 
         await message.add_reaction("✅")        
 

@@ -9,6 +9,6 @@ services:
     volumes: 
       # - '/home/wesley/mongodb:/data/db'
       - './mongodb:/data/db'
-    # ports:
-    #  - '27017:27017'
+    ports:
+     - 'localhost:27017:27017'
     restart: always
