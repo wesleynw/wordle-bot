@@ -7,8 +7,8 @@ services:
   database:
     image: mongo:latest
     volumes: 
-      - '/home/wesley/mongodb:/data/db'
-      # - './mongodb:/data/db'
+      # - '/home/wesley/mongodb:/data/db'
+      - './mongodb:/data/db'
     ports:
      - '127.0.0.1:27017:27017'
     restart: always

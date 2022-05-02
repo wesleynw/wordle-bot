@@ -32,26 +32,24 @@ async def on_message(message):
         raw_score = message.content.split(' ')[2][0]
         day = message.content.split(' ')[1]
         
-        q = coll.find_one({"_id" : message.author.id})
+        q = coll.find_one({"_id" : message.author.id}) or {}
         if q is not None and q.get("updated") == day:
             return
 
-
         if raw_score == 'X':
             score = 0
+            raw_score = 7
         else:
             score = 7 - int(raw_score)
         
-        # coll.update_one({"_id" : message.author.id}, {"$inc" : {"score" : score}}, {"$set" : {"updated" : day}}, {"$inc" : {"played" : 1}}, upsert=True)
+        avg, played = q.get("avg", 0), q.get("played", 0)
         coll.update_one(
             {"_id" : message.author.id}, 
             {
-                "$inc" : {"score" : score, "played" : 1}, 
+                "$inc" : {"score" : score, "played" : 1, "avg" : (int(raw_score) - avg) / (played + 1)}, 
                 "$set" : {"updated" : day}
             }, upsert=True
         )
-        # coll.update_one({"_id" : message.author.id}, {"$set" : {"updated" : day}}, upsert=True)
-        # coll.update_one({"_id" : message.author.id}, {"$inc" : {"played" : 1}}, upsert=True)
 
         await message.add_reaction("✅")        
 
@@ -74,8 +72,7 @@ async def leaderboard(ctx):
 
     for i in range(min(len(sorted_ranks), 4)):
         member = await ctx.guild.fetch_member(int(sorted_ranks[i]['_id']))
-        embed.add_field(name=f"***{i+1}*** - {member.display_name}", value=f"{sorted_ranks[i]['score']} points", inline=False)
-    
+        embed.add_field(name=f"***{i+1}*** - {member.display_name} - avg: {round(sorted_ranks[i]['avg'],1)}", value=f"{sorted_ranks[i]['score']} points", inline=False)    
     await ctx.send(embed=embed)
 
 
